@@ -1,0 +1,43 @@
+# Paths
+data_dir: "./Data/raw"
+
+# Data preprocessing
+preprocessing:
+  # Image dimensions
+  img_height: 224
+  img_width: 224
+  
+  # Normalization method (options: minmax, zscore)
+  normalization: "zscore"
+  
+  # Whether to apply brain extraction (skull stripping)
+  brain_extraction: false
+  
+  # Whether to apply image enhancement
+  enhance_contrast: true
+
+# Data splitting
+split:
+  validation_split: 0.2
+  test_split: 0.1
+  random_seed: 42
+
+# Data augmentation
+augmentation:
+  enabled: true
+  
+  # Geometric transformations
+  rotation_range: 15  # degrees
+  horizontal_flip: true
+  vertical_flip: true
+  zoom_range: 0.1
+  
+  # Intensity transformations
+  brightness_range: 0.1
+  contrast_range: 0.1
+
+# Data loading
+dataloader:
+  batch_size: 32
+  shuffle: true
+  num_workers: 4
