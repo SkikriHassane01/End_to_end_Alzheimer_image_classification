@@ -174,3 +174,5 @@ cython_debug/
 .pypirc
 .alzheimervenv/
 poetry.lock
+.Data/
+Data/
