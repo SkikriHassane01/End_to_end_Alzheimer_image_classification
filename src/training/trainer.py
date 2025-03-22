@@ -180,10 +180,10 @@ class Trainer:
         
         for epoch in range(epochs):
             # Reset metrics at the start of each epoch
-            self.train_loss.reset_states()
-            self.train_accuracy.reset_states()
-            self.val_loss.reset_states()
-            self.val_accuracy.reset_states()
+            self.train_loss.reset_state()
+            self.train_accuracy.reset_state()
+            self.val_loss.reset_state()
+            self.val_accuracy.reset_state()
             
             # Training loop
             logger.info(f"Epoch {epoch+1}/{epochs}")
@@ -236,7 +236,10 @@ class Trainer:
                 # Save model if this is the best one
                 if save_best_only:
                     logger.info(f"New best model! Saving checkpoint")
-                    self.model.save_model(self.checkpoint_dir)
+                    # Create a proper path with .keras extension
+                    model_save_path = self.checkpoint_dir / f"model_epoch_{epoch+1}_val_loss_{val_loss:.4f}.keras"
+                    self.model.save_model(str(model_save_path))
+                    logger.info(f"Model saved to {model_save_path}")
             else:
                 epochs_no_improve += 1
                 lr_epochs_no_improve += 1
@@ -256,7 +259,9 @@ class Trainer:
             # Save model every epoch if not save_best_only
             if not save_best_only:
                 logger.info(f"Saving checkpoint for epoch {epoch+1}")
-                self.model.save_model(self.checkpoint_dir / f"epoch_{epoch+1}")
+                # Create a proper path with .keras extension
+                model_save_path = self.checkpoint_dir / f"epoch_{epoch+1}.keras"
+                self.model.save_model(str(model_save_path))
         
         logger.info(f"Training completed. Best epoch: {best_epoch+1}")
         return history

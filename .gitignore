@@ -176,3 +176,4 @@ cython_debug/
 poetry.lock
 .Data/
 Data/
+logs/deep_cnn/

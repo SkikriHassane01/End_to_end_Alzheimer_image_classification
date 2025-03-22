@@ -31,23 +31,21 @@ def balance_dataset(dataset: tf.data.Dataset,
     """
     logger.info("Balancing dataset through strategic downsampling and class weighting...")
     
-    # TODO: Step 1: Compute class distribution
+    # Step 1: Compute class distribution
     class_counts = {i: 0 for i in range(len(class_names))}
     
-    # Unbatch the dataset if it's batched
-    if hasattr(dataset, '_batch_size') and dataset._batch_size is not None:
-        dataset = dataset.unbatch()
-    
-    # Count samples per class
-    for _, labels in dataset:
-        class_idx = tf.argmax(labels).numpy()
-        class_counts[int(class_idx)] += 1
+    # Count samples per class - handle batched data properly
+    for x, labels in dataset:
+        # For batched data, we get multiple class indices per batch
+        class_indices = tf.argmax(labels, axis=1).numpy()
+        
+        # Count each class in the batch
+        for idx in class_indices:
+            class_counts[int(idx)] += 1
     
     logger.info(f"==>Original class distribution: {class_counts}")
     
-    # TODO: Step 2: Calculate class weights
-    # the class weights help to balance the loss function
-    
+    # Step 2: Calculate class weights 
     total_samples = sum(class_counts.values())
     n_classes = len(class_counts)
     
@@ -57,12 +55,12 @@ def balance_dataset(dataset: tf.data.Dataset,
 
     logger.info(f"==>Class weights: {class_weights}")
     
-    # TODO: Step 3: Balance through downsampling
+    # Step 3: Balance through downsampling
     class_datasets = []
     
     for class_idx in range(len(class_names)):
         # Filter dataset to include only current class
-        class_ds = dataset.filter(
+        class_ds = dataset.unbatch().filter(
             lambda x, y: tf.equal(tf.argmax(y), class_idx)
         )
         
@@ -90,13 +88,11 @@ def balance_dataset(dataset: tf.data.Dataset,
     balanced_ds = balanced_ds.batch(batch_size)
     balanced_ds = balanced_ds.prefetch(tf.data.AUTOTUNE)
     
-    # Count samples in balanced dataset
-    balanced_count = 0
-    for _ in balanced_ds:
-        balanced_count += 1
-    balanced_count *= batch_size  # Approximate due to potential incomplete last batch
+    # Log the approximate size of balanced dataset (may be slightly off due to last batch)
+    balanced_batches = sum(1 for _ in balanced_ds)
+    approx_samples = balanced_batches * batch_size
+    logger.info(f"Approximate samples in balanced dataset: ~{approx_samples}")
     
-    logger.info(f"Total samples in balanced dataset: ~{balanced_count}")
     logger.info("Dataset balancing complete")
     
     return balanced_ds, class_weights
