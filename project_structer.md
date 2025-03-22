@@ -21,7 +21,6 @@ alzheimers-detection/
 │   │   ├── base_model.py       # Abstract model class
 │   │   ├── cnn_models.py       # Custom CNN architectures
 │   │   ├── transfer_models.py  # Transfer learning models
-│   │   └── ensemble.py         # Ensemble methods
 │   ├── training/
 │   │   ├── __init__.py
 │   │   ├── trainer.py          # Training loop utilities
@@ -29,7 +28,7 @@ alzheimers-detection/
 │   ├── evaluation/
 │   │   ├── __init__.py
 │   │   ├── metrics.py          # Classification metrics
-│   │   └── visualization.py    # Results visualization
+│   │   └── eval_visualization.py    # Results visualization
 │   └── utils/
 │       ├── __init__.py
 │       ├── logger.py           # Logging configuration
@@ -38,6 +37,7 @@ alzheimers-detection/
 │   ├── data_config.yaml        # Data configuration
 │   └── model_config.yaml       # Model hyperparameters
 ├── .gitignore
-├── requirements.txt
+├── LICENSE
+├── pyproject.toml
 ├── README.md
 └── setup.py
