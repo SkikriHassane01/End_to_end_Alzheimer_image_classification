@@ -4,6 +4,7 @@ from typing import Tuple, Optional
 from ..utils.logger import setup_logger
 from .base_model import BaseModel
 from pathlib import Path
+import os
 logger = setup_logger(name='src_models_cnn_models')
 
 CHECKPOINT_DIR = Path(__file__).resolve().parents[0] / "checkpoints"
@@ -110,15 +111,33 @@ class SimpleCNN(tf.keras.Model, BaseModel):
         outputs = self.call(inputs)
         return tf.keras.Model(inputs=inputs, outputs=outputs)
     
-    def save_model(self, checkpoint_dir: str = CHECKPOINT_DIR) -> str:
+    def save_model(self, path):
         """
-        Save the model to the specified checkpoint directory.
+        Save the model to a file.
+        
+        Parameters:
+        -----------
+        path : str
+            Path to save the model to
         """
         model = self.build_graph()
-        path = f"{checkpoint_dir}/{self.model_name}"
-        model.save(path)
-        logger.info(f"Model saved to {path}")
-        return path
+        
+        # Check if the path already has an extension
+        if path.endswith('.keras') or path.endswith('.h5'):
+            # If it does, use the path directly
+            save_path = path
+        else:
+            # If it doesn't, append the model name
+            save_path = os.path.join(path, self.model_name)
+        
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        
+        # Save the model
+        model.save(save_path)
+        logger.info(f"Model saved to {save_path}")
+        
+        return save_path
 
 
 class DeepCNN(tf.keras.Model, BaseModel):
@@ -264,22 +283,30 @@ class DeepCNN(tf.keras.Model, BaseModel):
         outputs = self.call(inputs)
         return tf.keras.Model(inputs=inputs, outputs=outputs)
     
-    def save_model(self, checkpoint_dir: str = CHECKPOINT_DIR) -> str:
+    def save_model(self, path):
         """
-        Save the model to the specified checkpoint directory.
+        Save the model to a file.
         
         Parameters:
         -----------
-        checkpoint_dir : str
-            Directory to save the model
-            
-        Returns:
-        --------
-        str
-            Path to the saved model
+        path : str
+            Path to save the model to
         """
         model = self.build_graph()
-        path = f"{checkpoint_dir}/{self.model_name}"
-        model.save(path)
-        logger.info(f"Model saved to {path}")
-        return path
+        
+        # Check if the path already has an extension
+        if path.endswith('.keras') or path.endswith('.h5'):
+            # If it does, use the path directly
+            save_path = path
+        else:
+            # If it doesn't, append the model name
+            save_path = os.path.join(path, self.model_name)
+        
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        
+        # Save the model
+        model.save(save_path)
+        logger.info(f"Model saved to {save_path}")
+        
+        return save_path
