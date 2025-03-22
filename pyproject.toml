@@ -1,14 +1,15 @@
 [tool.poetry]
-name = "alzheimer-classifier"
+name = "alzheimer_classifier"
 version = "0.1.0"
 description = "Alzheimer's Detection from MRI images"
 authors = ["SKIKRI Hassane <hassaneskikri@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/SkikriHassane01/End_to_end_Alzheimer_image_classification"
+packages = [{include = "src"}] 
 
 [tool.poetry.dependencies]
-python = ">=3.7,<3.12"
+python = ">=3.8"
 numpy = "*"
 pandas = "*"
 matplotlib = "*"
