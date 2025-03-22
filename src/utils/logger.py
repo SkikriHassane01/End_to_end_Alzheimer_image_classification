@@ -5,8 +5,8 @@ from logging.handlers import RotatingFileHandler
 import os 
 
 # we will create a default log dir in the root of the project 
-Log_dir = Path(__file__).resolve().parents[1] / 'logs'
-def setup_logger(name: str, log_dir: Path = Log_dir) -> logging.logger:
+Log_dir = Path(__file__).resolve().parents[2] / 'logs'
+def setup_logger(name: str, log_dir: Path = Log_dir) -> logging.Logger:
     """
     a function that sets up a logger for each module in a organized way and return a logger instance
     
