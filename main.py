@@ -86,6 +86,15 @@ def find_latest_checkpoint(model_name, checkpoint_dir='./checkpoints'):
     
     return latest
 
+def build_model_architecture(model, input_shape):
+    """Build model architecture by passing a dummy input through it."""
+    logger.info("Building model architecture with dummy input")
+    batch_size = 1
+    dummy_input = tf.zeros([batch_size] + list(input_shape))
+    _ = model(dummy_input, training=False)
+    model.summary()  # Print model architecture for verification
+    return model
+
 def main():
     """Main function."""
     # Load configurations
@@ -209,6 +218,12 @@ def main():
     if checkpoint_path:
         logger.info(f"Loading model from {checkpoint_path}")
         loaded_model = create_model(model_config)
+        
+        # Build the model architecture before loading weights
+        input_shape = tuple(model_config['input_shape'])
+        loaded_model = build_model_architecture(loaded_model, input_shape)
+        
+        # Now load the weights after the model is built
         loaded_model.load_model(str(checkpoint_path))
         
         # Test the loaded model
