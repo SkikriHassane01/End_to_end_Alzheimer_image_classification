@@ -25,7 +25,7 @@ class SimpleCNN(tf.keras.Model, BaseModel):
         super(SimpleCNN, self).__init__(name=name)
         BaseModel.__init__(self, name=name)
         
-        self.input_shape = input_shape
+        self._model_input_shape = input_shape  # Changed from input_shape to _model_input_shape
         self.num_classes = num_classes
         
         # Create model layers
@@ -107,7 +107,7 @@ class SimpleCNN(tf.keras.Model, BaseModel):
         tf.keras.Model
             Keras model instance
         """
-        inputs = tf.keras.Input(shape=self.input_shape)
+        inputs = tf.keras.Input(shape=self._model_input_shape) 
         outputs = self.call(inputs)
         return tf.keras.Model(inputs=inputs, outputs=outputs)
     
@@ -173,7 +173,7 @@ class DeepCNN(tf.keras.Model, BaseModel):
         super(DeepCNN, self).__init__(name=name)
         BaseModel.__init__(self, name=name)
         
-        self.input_shape = input_shape
+        self._model_input_shape = input_shape  # Changed from input_shape to _model_input_shape
         self.num_classes = num_classes
         self.l2_rate = l2_rate
         
@@ -279,7 +279,7 @@ class DeepCNN(tf.keras.Model, BaseModel):
         tf.keras.Model
             Keras model instance
         """
-        inputs = tf.keras.Input(shape=self.input_shape)
+        inputs = tf.keras.Input(shape=self._model_input_shape)  # Changed from input_shape
         outputs = self.call(inputs)
         return tf.keras.Model(inputs=inputs, outputs=outputs)
     

@@ -40,7 +40,8 @@ class TransferLearningModel(tf.keras.Model, BaseModel):
         super(TransferLearningModel, self).__init__(name=name)
         BaseModel.__init__(self, name=f"{base_model_name}_{name}")
         
-        self.input_shape = input_shape
+        # Rename to avoid conflict with tf.keras.Model's input_shape property
+        self._input_shape = input_shape
         self.num_classes = num_classes
         self.dropout_rate = dropout_rate
         self.base_model_name = base_model_name
@@ -80,18 +81,26 @@ class TransferLearningModel(tf.keras.Model, BaseModel):
         tf.keras.Model
             Base model instance
         """
+        # Ensure base model uses 3 channels regardless of input
+        base_input_shape = (input_shape[0], input_shape[1], 3)
+        
+        # Store original channel info for conversion in forward pass
+        self.input_channels = input_shape[2]
+        
+        logger.info(f"Input has {self.input_channels} channel(s). Base model initialized with shape {base_input_shape}")
+        
         if model_name == "ResNet50":
             base_model = ResNet50(include_top=False, 
                                 weights='imagenet', 
-                                input_shape=input_shape)
+                                input_shape=base_input_shape)
         elif model_name == "DenseNet121":
             base_model = DenseNet121(include_top=False, 
                                    weights='imagenet', 
-                                   input_shape=input_shape)
+                                   input_shape=base_input_shape)
         elif model_name == "EfficientNetB0":
             base_model = EfficientNetB0(include_top=False, 
                                        weights='imagenet', 
-                                       input_shape=input_shape)
+                                       input_shape=base_input_shape)
         else:
             raise ValueError(f"Unsupported base model: {model_name}")
         
@@ -113,9 +122,10 @@ class TransferLearningModel(tf.keras.Model, BaseModel):
         tf.Tensor
             Output logits
         """
-        # Handle grayscale (1-channel) to RGB (3-channel) conversion if needed
-        if inputs.shape[-1] == 1 and self.input_shape[-1] == 3:
+        # Handle grayscale (1-channel) to RGB (3-channel) conversion
+        if inputs.shape[-1] == 1:
             x = tf.image.grayscale_to_rgb(inputs)
+            logger.debug("Converting grayscale input to RGB")
         else:
             x = inputs
         
@@ -163,7 +173,7 @@ class TransferLearningModel(tf.keras.Model, BaseModel):
         tf.keras.Model
             Keras model instance
         """
-        inputs = tf.keras.Input(shape=self.input_shape)
+        inputs = tf.keras.Input(shape=self._input_shape)
         outputs = self.call(inputs)
         return tf.keras.Model(inputs=inputs, outputs=outputs)
     

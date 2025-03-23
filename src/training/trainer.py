@@ -3,6 +3,7 @@ import os
 import time
 from typing import Dict, List
 from pathlib import Path
+from tqdm import tqdm  # Import tqdm for progress bars
 from ..utils.logger import setup_logger
 from ..models.base_model import BaseModel
 from .class_balancing import create_weighted_loss, balance_dataset
@@ -189,13 +190,37 @@ class Trainer:
             logger.info(f"Epoch {epoch+1}/{epochs}")
             start_time = time.time()
             
-            # Iterate over the training dataset
-            for images, labels in self.train_dataset:
-                self.train_step(images, labels)
+            # Get the number of batches for the progress bar
+            train_steps = sum(1 for _ in self.train_dataset)
             
-            # Iterate over the validation dataset
-            for images, labels in self.val_dataset:
-                self.val_step(images, labels)
+            # Iterate over the training dataset with progress bar
+            train_tqdm = tqdm(self.train_dataset, 
+                             desc=f"Training Epoch {epoch+1}/{epochs}", 
+                             total=train_steps, 
+                             unit="batch")
+            
+            for images, labels in train_tqdm:
+                loss = self.train_step(images, labels)
+                # Update progress bar description with current metrics
+                train_tqdm.set_postfix({
+                    'loss': f'{loss:.4f}', 
+                    'accuracy': f'{self.train_accuracy.result().numpy():.4f}'
+                })
+            
+            # Validation loop with progress bar
+            val_steps = sum(1 for _ in self.val_dataset)
+            val_tqdm = tqdm(self.val_dataset, 
+                           desc=f"Validation Epoch {epoch+1}/{epochs}", 
+                           total=val_steps, 
+                           unit="batch")
+            
+            for images, labels in val_tqdm:
+                loss = self.val_step(images, labels)
+                # Update progress bar description with current metrics
+                val_tqdm.set_postfix({
+                    'loss': f'{loss:.4f}', 
+                    'accuracy': f'{self.val_accuracy.result().numpy():.4f}'
+                })
             
             # Get current metrics
             train_loss = self.train_loss.result().numpy()
